@@ -18,6 +18,7 @@ HKCR
 		{
 			ForceRemove SwapFilesVerb = s 'Swap Files'
 			{
+				val Icon = s 'shell32.dll,-243'
 				command
 				{
 					val DelegateExecute = s '{9EEBD123-D499-47C1-AA58-F1C5FF795BB8}'

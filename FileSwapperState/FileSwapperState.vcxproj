@@ -119,6 +119,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="FileSwapperState.cpp" />
+    <ClCompile Include="FileSwapperStateHandler.cpp" />
     <ClCompile Include="FileSwapperState_i.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -134,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dllmain.h" />
+    <ClInclude Include="FileSwapperStateHandler.h" />
     <ClInclude Include="FileSwapperState_i.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -148,6 +150,7 @@
   <ItemGroup>
     <None Include="FileSwapperState.def" />
     <None Include="FileSwapperState.rgs" />
+    <None Include="FileSwapperStateHandler.rgs" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="FileSwapperState.idl" />

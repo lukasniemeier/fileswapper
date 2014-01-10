@@ -8,11 +8,25 @@ import "oaidl.idl";
 import "ocidl.idl";
 
 [
+	object,
+	uuid(B65E08C7-C9A0-448E-A5F8-D101D21EA1E5),
+	pointer_default(unique)
+]
+interface IFileSwapperStateHandler : IUnknown{
+};
+[
 	uuid(D715621A-6E9F-41BD-9B20-F8644E7E73B9),
 	version(1.0),
 ]
 library FileSwapperStateLib
 {
 	importlib("stdole2.tlb");
+	[
+		uuid(D8B8ADC6-FD0D-41E0-82B5-5D2024510574)		
+	]
+	coclass FileSwapperStateHandler
+	{
+		[default] interface IFileSwapperStateHandler;
+	};
 };
 

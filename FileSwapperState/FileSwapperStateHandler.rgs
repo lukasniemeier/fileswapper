@@ -1,0 +1,26 @@
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove {D8B8ADC6-FD0D-41E0-82B5-5D2024510574} = s 'FileSwapperStateHandler Class'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			TypeLib = s '{D715621A-6E9F-41BD-9B20-F8644E7E73B9}'
+			Version = s '1.0'
+		}
+	}
+	NoRemove *
+	{
+		NoRemove Shell
+		{
+			NoRemove SwapFilesVerb
+			{
+				val CommandStateHandler = s '{D8B8ADC6-FD0D-41E0-82B5-5D2024510574}'
+				val CommandStateSync = s ''
+			}
+		}
+	}
+}
