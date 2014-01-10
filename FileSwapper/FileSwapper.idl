@@ -1,0 +1,33 @@
+// FileSwapper.idl : IDL source for FileSwapper
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (FileSwapper.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(8119CB34-CD9B-4E5F-B632-6C6BBEA5CE1D),
+	pointer_default(unique)
+]
+interface IFileSwapper : IUnknown
+{
+};
+[
+	uuid(DD5E0ECA-5DAF-4FD2-A9EC-D4C35E5CCEA7),
+	version(1.0), 
+]
+library FileSwapperLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(9EEBD123-D499-47C1-AA58-F1C5FF795BB8)		
+	]
+	coclass FileSwapper
+	{
+		[default] interface IFileSwapper;
+	};
+};
+

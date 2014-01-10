@@ -1,0 +1,18 @@
+// FileSwapperState.idl : IDL source for FileSwapperState
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (FileSwapperState.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(D715621A-6E9F-41BD-9B20-F8644E7E73B9),
+	version(1.0),
+]
+library FileSwapperStateLib
+{
+	importlib("stdole2.tlb");
+};
+
