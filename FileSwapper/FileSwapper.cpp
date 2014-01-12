@@ -1,15 +1,37 @@
 // FileSwapper.cpp : Implementation of CFileSwapper
 
 #include "stdafx.h"
-#include "FileSwapper.h"
 
 #include <vector>
+#include <Strsafe.h>
 
+#include "FileSwapper.h"
+#include "Error.h"
+
+
+HRESULT CoCreateInstanceAsAdmin(HWND hwnd, REFCLSID rclsid, REFIID riid, __out void ** ppv)
+{
+	BIND_OPTS3 bo;
+	WCHAR  wszCLSID[50];
+	WCHAR  wszMonikerName[300];
+
+	::StringFromGUID2(rclsid, wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0]));
+	HRESULT hr = ::StringCchPrintf(wszMonikerName, sizeof(wszMonikerName) / sizeof(wszMonikerName[0]),
+		L"Elevation:Administrator!new:%s", wszCLSID);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+	memset(&bo, 0, sizeof(bo));
+	bo.cbStruct = sizeof(bo);
+	bo.hwnd = hwnd;
+	bo.dwClassContext = CLSCTX_LOCAL_SERVER;
+	return ::CoGetObject(wszMonikerName, &bo, riid, ppv);
+}
 
 
 // CFileSwapper
-
-CFileSwapper::CFileSwapper() : selectedItems(nullptr)
+CFileSwapper::CFileSwapper() : isElevated(false), selectedItems(nullptr)
 {
 
 }
@@ -17,6 +39,12 @@ CFileSwapper::CFileSwapper() : selectedItems(nullptr)
 void CFileSwapper::FinalRelease()
 {
 	ReleaseObject(&selectedItems);
+	//ReleaseObject(&m_spUnkSite);
+}
+
+HRESULT CFileSwapper::GetElevatedFileSwapper(IFileSwapper** outSwapper)
+{
+	return CoCreateInstanceAsAdmin(nullptr, CLSID_FileSwapper, __uuidof(IFileSwapper), (void**)outSwapper);;
 }
 
 // IObjectWithSelection
@@ -42,6 +70,16 @@ IFACEMETHODIMP CFileSwapper::GetSelection(REFIID riid, void** ppv)
 	{
 		return E_FAIL;
 	}
+}
+
+// IInitializeCommand
+IFACEMETHODIMP CFileSwapper::Initialize(PCWSTR pszCommandName, IPropertyBag *ppb)
+{
+	if (::StrStr(pszCommandName, L"Elevated") != nullptr)
+	{
+		isElevated = true;
+	}
+	return S_OK;
 }
 
 // IExecuteCommand
@@ -71,13 +109,14 @@ IFACEMETHODIMP CFileSwapper::SetNoShowUI(BOOL fNoShowUI)
 }
 
 IFACEMETHODIMP CFileSwapper::SetDirectory(PCWSTR pszDirectory)
-{ 
+{
 	return S_OK; 
 }
 
 IFACEMETHODIMP CFileSwapper::Execute()
 { 
 	HRESULT hr = S_OK;
+	// Let's start the nesting...
 	if (selectedItems != nullptr) 
 	{
 		DWORD count;
@@ -86,30 +125,47 @@ IFACEMETHODIMP CFileSwapper::Execute()
 		{
 			if (count == 2)
 			{
-				IEnumShellItems* item;
-				if (SUCCEEDED(hr = selectedItems->EnumItems(&item)))
+				IShellItem* firstItem;
+				hr = selectedItems->GetItemAt(0, &firstItem);
+				if (SUCCEEDED(hr))
 				{
-					std::vector<std::wstring> fileNames;
-					IShellItem *psi;
-					while (item->Next(1, &psi, NULL) == S_OK)
+					LPWSTR firstItemName;
+					hr = firstItem->GetDisplayName(SIGDN_FILESYSPATH, &firstItemName);
+					if (SUCCEEDED(hr))
 					{
-						LPWSTR pszName;
-						if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszName)))
+						IShellItem* secondItem;
+						hr = selectedItems->GetItemAt(1, &secondItem);
+						if (SUCCEEDED(hr))
 						{
-							fileNames.push_back(pszName);
-							::CoTaskMemFree(pszName);
+							LPWSTR secondItemName;
+							hr = secondItem->GetDisplayName(SIGDN_FILESYSPATH, &secondItemName);
+							if (SUCCEEDED(hr))
+							{
+								IFileSwapper* swapper = this;
+								if (isElevated)
+								{
+									hr = GetElevatedFileSwapper(&swapper);
+								}
+								if (SUCCEEDED(hr))
+								{
+									hr = swapper->Swap(firstItemName, secondItemName);
+									if (isElevated)
+									{
+										swapper->Release();
+									}
+								}
+								::CoTaskMemFree(secondItemName);
+							}
+							secondItem->Release();
 						}
-						psi->Release();
+						::CoTaskMemFree(firstItemName);
 					}
-					item->Release();
-
-					hr = Swap(fileNames.at(0), fileNames.at(1));
+					firstItem->Release();
 				}
 			}
 			else
 			{
-				::MessageBox(nullptr, L"Nichts da.", L"Fehler", MB_ICONERROR);
-				hr = E_FAIL;
+				hr = E_UNEXPECTED;
 			}
 		}
 	}
@@ -118,41 +174,53 @@ IFACEMETHODIMP CFileSwapper::Execute()
 		hr = E_UNEXPECTED;
 	}
 
+	if (FAILED(hr))
+	{
+		OUTPUT_DEBUG_STRING(hr);
+	}
+
 	return hr; 
 }
 
-HRESULT CFileSwapper::Swap(const std::wstring left, const std::wstring right) const
+// IFileSwapper
+IFACEMETHODIMP CFileSwapper::Swap(LPCWSTR leftFile, LPCWSTR rightFile)
 {
+	std::wstring leftString(leftFile);
 	std::wstring path;
-	const size_t last_slash_idx = left.rfind('\\');
+	const size_t last_slash_idx = leftString.rfind('\\');
 	if (std::string::npos == last_slash_idx)
 	{
 		return E_FAIL;
 	}
-	path = left.substr(0, last_slash_idx);
+	path = leftString.substr(0, last_slash_idx);
 
 	wchar_t tempFile[MAX_PATH];
 	if (::GetTempFileName(path.c_str(), L"swap", 0, tempFile) == 0)
 	{
-		return HRESULT_FROM_WIN32(GetLastError());
+		HRESULT result = HRESULT_FROM_WIN32(GetLastError());
+		OUTPUT_DEBUG_STRING(L"Error creating temporary file", result);
+		return result;
 	}
-
-	LPCWSTR leftFile = left.c_str();
-	LPCWSTR rightFile = right.c_str();
 
 	if (::MoveFileEx(leftFile, tempFile, MOVEFILE_REPLACE_EXISTING) == FALSE)
 	{
-		return HRESULT_FROM_WIN32(GetLastError());
+		HRESULT result = HRESULT_FROM_WIN32(GetLastError());
+		OUTPUT_DEBUG_STRING(L"Error moving left file to temporary file", result);
+		return result;
 	}
 
 	if (::MoveFileEx(rightFile, leftFile, MOVEFILE_REPLACE_EXISTING) == FALSE)
 	{
-		return HRESULT_FROM_WIN32(GetLastError());
+		HRESULT result = HRESULT_FROM_WIN32(GetLastError());
+		OUTPUT_DEBUG_STRING(L"Error moving right file to left file", result);
+		return result;
 	}
 
 	if (::MoveFileEx(tempFile, rightFile, MOVEFILE_REPLACE_EXISTING) == FALSE)
 	{
-		return HRESULT_FROM_WIN32(GetLastError());
+		HRESULT result = HRESULT_FROM_WIN32(GetLastError());
+		OUTPUT_DEBUG_STRING(L"Error moving temporary file to left file", result);
+		return result;
 	}
 
 	return S_OK;

@@ -48,6 +48,9 @@
     <ClInclude Include="FileSwapper_i.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FileSwapper.rc">

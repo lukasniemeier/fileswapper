@@ -14,6 +14,7 @@ import "ocidl.idl";
 ]
 interface IFileSwapper : IUnknown
 {
+	[id(1), helpstring("method Swap")] HRESULT Swap(LPCWSTR left, LPCWSTR right);
 };
 [
 	uuid(DD5E0ECA-5DAF-4FD2-A9EC-D4C35E5CCEA7),

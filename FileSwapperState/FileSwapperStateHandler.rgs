@@ -21,6 +21,11 @@ HKCR
 				val CommandStateHandler = s '{D8B8ADC6-FD0D-41E0-82B5-5D2024510574}'
 				val CommandStateSync = s ''
 			}
+			NoRemove SwapFilesElevatedVerb
+			{
+				val CommandStateHandler = s '{D8B8ADC6-FD0D-41E0-82B5-5D2024510574}'
+				val CommandStateSync = s ''
+			}
 		}
 	}
 }

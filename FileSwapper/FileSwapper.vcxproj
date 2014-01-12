@@ -121,6 +121,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Error.h" />
     <ClInclude Include="FileSwapper.h" />
     <ClInclude Include="FileSwapper_i.h" />
     <ClInclude Include="Resource.h" />

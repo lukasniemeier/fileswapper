@@ -18,6 +18,7 @@ class ATL_NO_VTABLE CFileSwapper :
 	public CComCoClass<CFileSwapper, &CLSID_FileSwapper>,
 	public IObjectWithSiteImpl<CFileSwapper>,
 	public IObjectWithSelection,
+	public IInitializeCommand,
 	public IExecuteCommand,
 	public IFileSwapper
 {
@@ -30,6 +31,7 @@ DECLARE_NOT_AGGREGATABLE(CFileSwapper)
 
 BEGIN_COM_MAP(CFileSwapper)
 	COM_INTERFACE_ENTRY(IObjectWithSite)
+	COM_INTERFACE_ENTRY(IInitializeCommand)
 	COM_INTERFACE_ENTRY(IObjectWithSelection)
 	COM_INTERFACE_ENTRY(IExecuteCommand)
 	COM_INTERFACE_ENTRY(IFileSwapper)
@@ -53,6 +55,9 @@ public:
 
 	IFACEMETHODIMP GetSelection(REFIID riid, void** ppv);
 
+	// IInitializeCommand
+	IFACEMETHODIMP Initialize(PCWSTR pszCommandName, IPropertyBag *ppb);
+
 	// IExecuteCommand
 	IFACEMETHODIMP SetKeyState(DWORD grfKeyState);
 
@@ -68,9 +73,12 @@ public:
 
 	IFACEMETHODIMP Execute();
 
-	HRESULT Swap(const std::wstring left, const std::wstring right) const;
+	// IFileSwapper
+	IFACEMETHODIMP Swap(LPCWSTR left, LPCWSTR right);
 
 protected:
+	HRESULT GetElevatedFileSwapper(IFileSwapper** outSwapper);
+
 	template <class T> void ReleaseObject(T** object)
 	{
 		if (*object)
@@ -81,6 +89,7 @@ protected:
 	}
 
 private:
+	bool isElevated;
 	IShellItemArray* selectedItems;
 
 };
