@@ -51,7 +51,7 @@ HRESULT CFileSwapper::GetElevatedFileSwapper(IFileSwapper** outSwapper)
 	return CoCreateInstanceAsAdmin(siteWindow, CLSID_FileSwapper, __uuidof(IFileSwapper), (void**)outSwapper);
 }
 
-HRESULT CFileSwapper::Execute(LPCWSTR leftItemName, LPCWSTR rightItemName)
+HRESULT CFileSwapper::Execute(LPWSTR leftItemName, LPWSTR rightItemName)
 {
 	HRESULT hr = S_OK;
 	CComPtr<IFileSwapper> swapper;
@@ -191,7 +191,7 @@ IFACEMETHODIMP CFileSwapper::Execute()
 }
 
 // IFileSwapper
-IFACEMETHODIMP CFileSwapper::Swap(LPCWSTR leftFile, LPCWSTR rightFile)
+IFACEMETHODIMP CFileSwapper::Swap(BSTR leftFile, BSTR rightFile)
 {
 	std::wstring leftString(leftFile);
 	std::wstring path;

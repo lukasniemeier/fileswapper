@@ -74,10 +74,10 @@ public:
 	IFACEMETHODIMP Execute();
 
 	// IFileSwapper
-	IFACEMETHODIMP Swap(LPCWSTR left, LPCWSTR right);
+	IFACEMETHODIMP Swap(BSTR left, BSTR right);
 
 protected:
-	HRESULT Execute(LPCWSTR left, LPCWSTR right);
+	HRESULT Execute(LPWSTR left, LPWSTR right);
 
 	HRESULT GetElevatedFileSwapper(IFileSwapper** outSwapper);
 
