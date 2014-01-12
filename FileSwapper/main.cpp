@@ -18,7 +18,9 @@ public :
 
 	void ShowHelp()
 	{
-		::MessageBox(nullptr, L"Help", L"Help", MB_ICONINFORMATION);
+		::MessageBox(nullptr, 
+			L"You have to pass a command line switch to specify what you want.\n\nInstall (current user): '/RegServerPerUser'\nUninstall (current user): '/UnregServerPerUser'\nInstall (all users): '/RegServer'\nUninstall (all users): '/UnregServer'\n\nTo install/uninstall for all users please use an elevated prompt. To enable this shell extension in folders needing elevation you have to install it for all users.", 
+			L"FileSwapper Shell Extension", MB_ICONINFORMATION);
 	}
 
 	int GetCommandLineCount(_In_z_ LPCTSTR lpCmdLine)
@@ -61,7 +63,7 @@ public :
 				{
 					return false;
 				}
-				//exitCode = (int) ::ShellExecute(NULL, L"open", L"regsvr32", L"/s /u FileSwapperPS.dll", NULL, SW_HIDE);
+				exitCode = (int) ::ShellExecute(NULL, L"open", L"regsvr32", L"/s /u FileSwapperPS.dll", NULL, SW_HIDE);
 				if (exitCode <= 32)
 				{
 					return false;
