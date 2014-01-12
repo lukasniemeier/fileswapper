@@ -12,8 +12,8 @@
 HRESULT CoCreateInstanceAsAdmin(HWND hwnd, REFCLSID rclsid, REFIID riid, __out void ** ppv)
 {
 	BIND_OPTS3 bo;
-	WCHAR  wszCLSID[50];
-	WCHAR  wszMonikerName[300];
+	WCHAR wszCLSID[50];
+	WCHAR wszMonikerName[300];
 
 	::StringFromGUID2(rclsid, wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0]));
 	HRESULT hr = ::StringCchPrintf(wszMonikerName, sizeof(wszMonikerName) / sizeof(wszMonikerName[0]),
@@ -39,12 +39,37 @@ CFileSwapper::CFileSwapper() : isElevated(false), selectedItems(nullptr)
 void CFileSwapper::FinalRelease()
 {
 	ReleaseObject(&selectedItems);
-	//ReleaseObject(&m_spUnkSite);
 }
 
 HRESULT CFileSwapper::GetElevatedFileSwapper(IFileSwapper** outSwapper)
 {
-	return CoCreateInstanceAsAdmin(nullptr, CLSID_FileSwapper, __uuidof(IFileSwapper), (void**)outSwapper);;
+	HWND siteWindow = nullptr;
+	if (FAILED(IUnknown_GetWindow(m_spUnkSite, &siteWindow)))
+	{
+		siteWindow = nullptr;
+	}
+	return CoCreateInstanceAsAdmin(siteWindow, CLSID_FileSwapper, __uuidof(IFileSwapper), (void**)outSwapper);
+}
+
+HRESULT CFileSwapper::Execute(LPCWSTR leftItemName, LPCWSTR rightItemName)
+{
+	HRESULT hr = S_OK;
+	CComPtr<IFileSwapper> swapper;
+	if (isElevated)
+	{
+		hr = GetElevatedFileSwapper(&swapper);
+	}
+	else
+	{
+		swapper = this;
+	}
+
+	if (SUCCEEDED(hr))
+	{
+		hr = swapper->Swap(leftItemName, rightItemName);
+	}
+
+	return hr;
 }
 
 // IObjectWithSelection
@@ -115,64 +140,47 @@ IFACEMETHODIMP CFileSwapper::SetDirectory(PCWSTR pszDirectory)
 
 IFACEMETHODIMP CFileSwapper::Execute()
 { 
-	HRESULT hr = S_OK;
-	// Let's start the nesting...
-	if (selectedItems != nullptr) 
+	if (selectedItems == nullptr)
 	{
-		DWORD count;
-		HRESULT hr = selectedItems->GetCount(&count);
-		if (SUCCEEDED(hr))
-		{
-			if (count == 2)
-			{
-				IShellItem* firstItem;
-				hr = selectedItems->GetItemAt(0, &firstItem);
-				if (SUCCEEDED(hr))
-				{
-					LPWSTR firstItemName;
-					hr = firstItem->GetDisplayName(SIGDN_FILESYSPATH, &firstItemName);
-					if (SUCCEEDED(hr))
-					{
-						IShellItem* secondItem;
-						hr = selectedItems->GetItemAt(1, &secondItem);
-						if (SUCCEEDED(hr))
-						{
-							LPWSTR secondItemName;
-							hr = secondItem->GetDisplayName(SIGDN_FILESYSPATH, &secondItemName);
-							if (SUCCEEDED(hr))
-							{
-								IFileSwapper* swapper = this;
-								if (isElevated)
-								{
-									hr = GetElevatedFileSwapper(&swapper);
-								}
-								if (SUCCEEDED(hr))
-								{
-									hr = swapper->Swap(firstItemName, secondItemName);
-									if (isElevated)
-									{
-										swapper->Release();
-									}
-								}
-								::CoTaskMemFree(secondItemName);
-							}
-							secondItem->Release();
-						}
-						::CoTaskMemFree(firstItemName);
-					}
-					firstItem->Release();
-				}
-			}
-			else
-			{
-				hr = E_UNEXPECTED;
-			}
-		}
+		return E_UNEXPECTED;
 	}
-	else 
+
+	DWORD count;
+	HRESULT hr = selectedItems->GetCount(&count);
+	if (FAILED(hr) || count != 2)
 	{
-		hr = E_UNEXPECTED;
+		return E_UNEXPECTED;
 	}
+
+	CComPtr<IShellItem> firstItem;
+	hr = selectedItems->GetItemAt(0, &firstItem);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+		
+	CComHeapPtr<WCHAR> firstItemName;
+	hr = firstItem->GetDisplayName(SIGDN_FILESYSPATH, &firstItemName);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	CComPtr<IShellItem> secondItem;
+	hr = selectedItems->GetItemAt(1, &secondItem);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	CComHeapPtr<WCHAR> secondItemName;
+	hr = secondItem->GetDisplayName(SIGDN_FILESYSPATH, &secondItemName);
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	hr = Execute(firstItemName, secondItemName);
 
 	if (FAILED(hr))
 	{

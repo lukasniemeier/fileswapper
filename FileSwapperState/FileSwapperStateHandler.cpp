@@ -89,10 +89,10 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 	psiItemArray->GetCount(&count);
 	if (count == 2)
 	{
-		IShellItem* item;
+		CComPtr<IShellItem> item;
 		if (psiItemArray->GetItemAt(0, &item) == S_OK)
 		{
-			IShellItem* parent;
+			CComPtr<IShellItem> parent;
 			if (item->GetParent(&parent) == S_OK)
 			{
 				LPWSTR directoryName;
@@ -104,9 +104,7 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 					}
 					::CoTaskMemFree(directoryName);
 				}
-				parent->Release();
 			}
-			item->Release();
 		}
 
 		

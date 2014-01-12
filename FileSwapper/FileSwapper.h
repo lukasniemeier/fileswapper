@@ -77,6 +77,8 @@ public:
 	IFACEMETHODIMP Swap(LPCWSTR left, LPCWSTR right);
 
 protected:
+	HRESULT Execute(LPCWSTR left, LPCWSTR right);
+
 	HRESULT GetElevatedFileSwapper(IFileSwapper** outSwapper);
 
 	template <class T> void ReleaseObject(T** object)
