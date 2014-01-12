@@ -4,7 +4,7 @@ HKCR
 	{
 		ForceRemove {9EEBD123-D499-47C1-AA58-F1C5FF795BB8} = s 'FileSwapper Class'
 		{
-			val LocalizedString = s '@%MODULE_RAW%,-100'
+			val LocalizedString = s '@%MODULE_RAW%,-101'
 			Elevation = s ''
 			{
 				val Enabled = d '1'

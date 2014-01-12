@@ -74,6 +74,18 @@ IFACEMETHODIMP CFileSwapperStateHandler::Initialize(PCWSTR pszCommandName, IProp
 	return S_OK;
 }
 
+bool IsRegisteredForElevation()
+{
+	HKEY key;
+	LSTATUS status = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Classes\\CLSID\\{9EEBD123-D499-47C1-AA58-F1C5FF795BB8}\\Elevation", 0, KEY_ENUMERATE_SUB_KEYS, &key);
+	if (status == ERROR_SUCCESS)
+	{
+		::RegCloseKey(key);
+		return true;
+	}
+	return false;
+}
+
 // IExplorerCommandState
 IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray, BOOL fOkToBeSlow, EXPCMDSTATE* pCmdState)
 {
@@ -83,6 +95,11 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 	}
 
 	EXPCMDSTATE state = ECS_HIDDEN;
+	if (isElevated && !IsRegisteredForElevation())
+	{
+		*pCmdState = state;
+		return S_OK;
+	}
 
 	psiItemArray->AddRef();
 	DWORD count;
@@ -113,6 +130,7 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 
 	if (isElevated)
 	{
+		// the elevated verb is the other way arround
 		state = state == ECS_ENABLED ? ECS_HIDDEN : ECS_ENABLED;
 	}
 
