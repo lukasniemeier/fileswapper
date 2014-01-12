@@ -7,10 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileSwapper", "FileSwapper\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileSwapperState", "FileSwapperState\FileSwapperState.vcxproj", "{3E5F7E4A-0B2D-4381-8351-6F70BB564F8D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComTester", "ComTester\ComTester.vcxproj", "{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComTesterPS", "ComTester\ComTesterPS.vcxproj", "{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileSwapperPS", "FileSwapper\FileSwapperPS.vcxproj", "{0AECBB96-AA3E-4EFE-8229-B0713BB6CAAB}"
 EndProject
 Global
@@ -45,26 +41,6 @@ Global
 		{3E5F7E4A-0B2D-4381-8351-6F70BB564F8D}.Release|Win32.ActiveCfg = Release|x64
 		{3E5F7E4A-0B2D-4381-8351-6F70BB564F8D}.Release|x64.ActiveCfg = Release|x64
 		{3E5F7E4A-0B2D-4381-8351-6F70BB564F8D}.Release|x64.Build.0 = Release|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Debug|Mixed Platforms.Build.0 = Debug|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Debug|Win32.ActiveCfg = Debug|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Debug|x64.ActiveCfg = Debug|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Debug|x64.Build.0 = Debug|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Release|Mixed Platforms.Build.0 = Release|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Release|Win32.ActiveCfg = Release|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Release|x64.ActiveCfg = Release|x64
-		{7FD3F8AE-9B65-44E2-8744-5DD7BAD7C137}.Release|x64.Build.0 = Release|x64
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Debug|Win32.ActiveCfg = Debug|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Debug|Win32.Build.0 = Debug|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Debug|x64.ActiveCfg = Debug|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Release|Win32.ActiveCfg = Release|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Release|Win32.Build.0 = Release|Win32
-		{0702D39A-6B7D-4B0B-8A3B-C044AA7A85E4}.Release|x64.ActiveCfg = Release|Win32
 		{0AECBB96-AA3E-4EFE-8229-B0713BB6CAAB}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
 		{0AECBB96-AA3E-4EFE-8229-B0713BB6CAAB}.Debug|Mixed Platforms.Build.0 = Debug|x64
 		{0AECBB96-AA3E-4EFE-8229-B0713BB6CAAB}.Debug|Win32.ActiveCfg = Debug|x64
