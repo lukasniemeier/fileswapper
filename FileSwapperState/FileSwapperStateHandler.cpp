@@ -2,9 +2,7 @@
 
 #include "stdafx.h"
 #include "FileSwapperStateHandler.h"
-
 #include <Aclapi.h>
-
 #include <atlsecurity.h>
 
 bool IsWriteableByCurrentUser(const LPWSTR path)
@@ -37,15 +35,8 @@ bool IsWriteableByCurrentUser(const LPWSTR path)
 		{
 			HANDLE hImpersonatedToken = NULL;
 			if (::DuplicateToken(hToken, SecurityImpersonation, &hImpersonatedToken)) {
-				if (AccessCheck(
-					secDesc,                 // security descriptor to check
-					hImpersonatedToken,              // impersonation token
-					dwAccessDesired,     // requested access rights
-					&mapping,            // pointer to GENERIC_MAPPING
-					&PrivilegeSet,       // receives privileges used in check
-					&dwPrivSetSize,      // size of PrivilegeSet buffer
-					&dwAccessAllowed,    // receives mask of allowed access rights
-					&fAccessGranted))   // receives results of access check
+				if (AccessCheck(secDesc, hImpersonatedToken, dwAccessDesired, &mapping,
+					&PrivilegeSet, &dwPrivSetSize, &dwAccessAllowed, &fAccessGranted))
 				{
 					isWriteable = (dwAccessAllowed & FILE_GENERIC_WRITE) != 0;
 				}
