@@ -7,9 +7,9 @@
 
 #include <atlsecurity.h>
 
-bool isOwnedByCurrentUser(const LPWSTR path)
+bool IsWriteableByCurrentUser(const LPWSTR path)
 {
-	bool isOwnedByCurrentUser = false;
+	bool isWriteable = false;
 	DWORD result;
 	SECURITY_INFORMATION secInfo = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION;
 	PSECURITY_DESCRIPTOR secDesc;
@@ -47,7 +47,7 @@ bool isOwnedByCurrentUser(const LPWSTR path)
 					&dwAccessAllowed,    // receives mask of allowed access rights
 					&fAccessGranted))   // receives results of access check
 				{
-					isOwnedByCurrentUser = dwAccessAllowed & FILE_GENERIC_WRITE;
+					isWriteable = (dwAccessAllowed & FILE_GENERIC_WRITE) != 0;
 				}
 				::CloseHandle(hImpersonatedToken);
 			}
@@ -56,7 +56,7 @@ bool isOwnedByCurrentUser(const LPWSTR path)
 		::LocalFree(secDesc);
 	}
 
-	return isOwnedByCurrentUser;
+	return isWriteable;
 }
 
 CFileSwapperStateHandler::CFileSwapperStateHandler() : isElevated(false)
@@ -95,44 +95,38 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 	}
 
 	EXPCMDSTATE state = ECS_HIDDEN;
-	if (isElevated && !IsRegisteredForElevation())
-	{
-		*pCmdState = state;
-		return S_OK;
-	}
+	DWORD count;
 
 	psiItemArray->AddRef();
-	DWORD count;
 	psiItemArray->GetCount(&count);
 	if (count == 2)
 	{
-		CComPtr<IShellItem> item;
-		if (psiItemArray->GetItemAt(0, &item) == S_OK)
+		if (isElevated && !IsRegisteredForElevation())
 		{
-			CComPtr<IShellItem> parent;
-			if (item->GetParent(&parent) == S_OK)
+			state = ECS_HIDDEN;;
+		}
+		else
+		{
+			CComPtr<IShellItem> item;
+			if (psiItemArray->GetItemAt(0, &item) == S_OK)
 			{
-				LPWSTR directoryName;
-				if (parent->GetDisplayName(SIGDN_FILESYSPATH, &directoryName) == S_OK)
+				CComPtr<IShellItem> parent;
+				if (item->GetParent(&parent) == S_OK)
 				{
-					if (isOwnedByCurrentUser(directoryName))
+					LPWSTR directoryName;
+					if (parent->GetDisplayName(SIGDN_FILESYSPATH, &directoryName) == S_OK)
 					{
-						state = ECS_ENABLED;
+						if (IsWriteableByCurrentUser(directoryName))
+						{
+							state = isElevated ? ECS_HIDDEN : ECS_ENABLED;
+						}
+						::CoTaskMemFree(directoryName);
 					}
-					::CoTaskMemFree(directoryName);
 				}
 			}
 		}
-
-		
 	}
 	psiItemArray->Release();
-
-	if (isElevated)
-	{
-		// the elevated verb is the other way arround
-		state = state == ECS_ENABLED ? ECS_HIDDEN : ECS_ENABLED;
-	}
 
 	*pCmdState = state;
 
