@@ -74,25 +74,16 @@ public:
 	IFACEMETHODIMP Execute();
 
 	// IFileSwapper
-	IFACEMETHODIMP Swap(BSTR left, BSTR right);
+	IFACEMETHODIMP Swap(LPCWSTR left, LPCWSTR right);
 
 protected:
 	HRESULT Execute(LPWSTR left, LPWSTR right);
 
 	HRESULT GetElevatedFileSwapper(IFileSwapper** outSwapper);
 
-	template <class T> void ReleaseObject(T** object)
-	{
-		if (*object)
-		{
-			(*object)->Release();
-			*object = nullptr;
-		}
-	}
-
 private:
 	bool isElevated;
-	IShellItemArray* selectedItems;
+	CComPtr<IShellItemArray> selectedItems;
 
 };
 

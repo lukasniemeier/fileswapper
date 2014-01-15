@@ -88,8 +88,8 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 	EXPCMDSTATE state = ECS_HIDDEN;
 	DWORD count;
 
-	psiItemArray->AddRef();
-	psiItemArray->GetCount(&count);
+	CComPtr<IShellItemArray> items(psiItemArray);
+	items->GetCount(&count);
 	if (count == 2)
 	{
 		if (isElevated && !IsRegisteredForElevation())
@@ -104,20 +104,19 @@ IFACEMETHODIMP CFileSwapperStateHandler::GetState(IShellItemArray* psiItemArray,
 				CComPtr<IShellItem> parent;
 				if (item->GetParent(&parent) == S_OK)
 				{
-					LPWSTR directoryName;
+					CComHeapPtr<wchar_t> directoryName;
 					if (parent->GetDisplayName(SIGDN_FILESYSPATH, &directoryName) == S_OK)
 					{
-						if (IsWriteableByCurrentUser(directoryName))
+						bool isWriteable = IsWriteableByCurrentUser(directoryName);
+						if (isWriteable != isElevated)
 						{
-							state = isElevated ? ECS_HIDDEN : ECS_ENABLED;
+							state = ECS_ENABLED;
 						}
-						::CoTaskMemFree(directoryName);
 					}
 				}
 			}
 		}
 	}
-	psiItemArray->Release();
 
 	*pCmdState = state;
 

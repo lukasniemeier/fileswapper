@@ -38,7 +38,7 @@ CFileSwapper::CFileSwapper() : isElevated(false), selectedItems(nullptr)
 
 void CFileSwapper::FinalRelease()
 {
-	ReleaseObject(&selectedItems);
+	
 }
 
 HRESULT CFileSwapper::GetElevatedFileSwapper(IFileSwapper** outSwapper)
@@ -75,12 +75,7 @@ HRESULT CFileSwapper::Execute(LPWSTR leftItemName, LPWSTR rightItemName)
 // IObjectWithSelection
 IFACEMETHODIMP CFileSwapper::SetSelection(IShellItemArray *psia)
 {
-	ReleaseObject(&selectedItems);
 	selectedItems = psia;
-	if (selectedItems != nullptr)
-	{
-		selectedItems->AddRef();
-	}
 	return S_OK; 
 }
 
@@ -191,7 +186,7 @@ IFACEMETHODIMP CFileSwapper::Execute()
 }
 
 // IFileSwapper
-IFACEMETHODIMP CFileSwapper::Swap(BSTR leftFile, BSTR rightFile)
+IFACEMETHODIMP CFileSwapper::Swap(LPCWSTR leftFile, LPCWSTR rightFile)
 {
 	std::wstring leftString(leftFile);
 	std::wstring path;
